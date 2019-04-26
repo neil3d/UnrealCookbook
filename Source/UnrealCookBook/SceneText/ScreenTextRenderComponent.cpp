@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "UnrealCookBook.h"
 #include "ScreenTextRenderComponent.h"
+#include "UnrealCookBook.h"
 
 UScreenTextRenderComponent::UScreenTextRenderComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
