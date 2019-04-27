@@ -52,10 +52,12 @@ float UBlueprintWildcardLibrary::GenericArray_NumericPropertyAverage(const void*
 		);
 	}
 
-
 	FScriptArrayHelper ArrayHelper(ArrayProperty, TargetArray);
 	int Count = ArrayHelper.Num();
 	float Sum = 0.f;
+
+	if (Count <= 0)
+		return 0.f;
 
 	if (NumProperty->IsFloatingPoint())
 		for (int i = 0; i < Count; i++) {
