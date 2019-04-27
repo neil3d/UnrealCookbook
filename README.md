@@ -2,7 +2,7 @@
 
 ## 2019年
 
-* [蓝图泛型功能节点实现](https://neil3d.github.io/assets/img/unreal/2019-blueprint-cover.png)
+* [蓝图泛型功能节点实现](https://neil3d.github.io/unreal/blueprint-wildcard.html)
 
 ## 2015年
 
