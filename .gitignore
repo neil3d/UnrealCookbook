@@ -18,7 +18,7 @@
 *.VC.opendb
 
 # Unreal Files
-/Binaries/
-/Intermediate/
-/Saved/
-/Build/
+Binaries
+Intermediate
+Saved
+Build
