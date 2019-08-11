@@ -13,7 +13,7 @@
 *.a
 
 # Visual Studio Files
-/.vs/
+.vs
 *.VC.db
 *.VC.opendb
 
