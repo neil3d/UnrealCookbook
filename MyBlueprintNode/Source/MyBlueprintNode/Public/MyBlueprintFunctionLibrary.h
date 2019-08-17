@@ -17,4 +17,7 @@ class MYBLUEPRINTNODE_API UMyBlueprintFunctionLibrary : public UBlueprintFunctio
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
 		static void SayHello_Internal();
+
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
+		static void SaySomething_Internal(const TArray<FString>& InWords);
 };
