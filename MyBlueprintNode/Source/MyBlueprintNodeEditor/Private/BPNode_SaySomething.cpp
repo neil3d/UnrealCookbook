@@ -44,7 +44,7 @@ void UBPNode_SaySomething::ExpandNode(FKismetCompilerContext & CompilerContext, 
 		FName MyFunctionName = GET_FUNCTION_NAME_CHECKED(UMyBlueprintFunctionLibrary, SaySomething_Internal);
 
 		UK2Node_CallFunction* CallFuncNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
-		CallFuncNode->FunctionReference.SetExternalMember(MyFunctionName, UBPNode_SaySomething::StaticClass());
+		CallFuncNode->FunctionReference.SetExternalMember(MyFunctionName, UMyBlueprintFunctionLibrary::StaticClass());
 		CallFuncNode->AllocateDefaultPins();
 
 		// move exec pins
