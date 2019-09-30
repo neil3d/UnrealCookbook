@@ -24,5 +24,6 @@ public:
 	// UK2Node interface
 	virtual FText GetMenuCategory() const { return FText::FromString(TEXT("MyBlueprintNodes")); }
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
+	virtual class FNodeHandlingFunctor* CreateNodeHandler(class FKismetCompilerContext& CompilerContext) const;
 	// End of UK2Node interface
 };
