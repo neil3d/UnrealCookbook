@@ -56,9 +56,9 @@ public:
 	{
 		UBPNode_TriGate* MyNode = CastChecked<UBPNode_TriGate>(Node);
 
-		//UEdGraphPin* PositivePin = Context.FindRequiredPinByName(Node, TriGatePN::Positive, EGPD_Input);
-		//UEdGraphPin* ZeroPin = Context.FindRequiredPinByName(Node, TriGatePN::Zero, EGPD_Output);
-		UEdGraphPin* NegativePin = Context.FindRequiredPinByName(Node, TriGatePN::Negative, EGPD_Output);
+		UEdGraphPin* PositivePin = MyNode->FindPin(TriGatePN::Positive, EGPD_Output);
+		UEdGraphPin* ZeroPin = MyNode->FindPin(TriGatePN::Zero, EGPD_Output);
+		UEdGraphPin* NegativePin = MyNode->FindPin(TriGatePN::Negative, EGPD_Output);
 		
 		FBPTerminal* BoolTerm = BoolTermMap.FindRef(MyNode);
 		
