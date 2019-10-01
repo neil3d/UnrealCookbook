@@ -56,32 +56,32 @@ public:
 	{
 		UBPNode_TriGate* MyNode = CastChecked<UBPNode_TriGate>(Node);
 
-		UEdGraphPin* PositivePin = Context.FindRequiredPinByName(Node, TriGatePN::Positive, EGPD_Input);
-		UEdGraphPin* ZeroPin = Context.FindRequiredPinByName(Node, TriGatePN::Zero, EGPD_Output);
+		//UEdGraphPin* PositivePin = Context.FindRequiredPinByName(Node, TriGatePN::Positive, EGPD_Input);
+		//UEdGraphPin* ZeroPin = Context.FindRequiredPinByName(Node, TriGatePN::Zero, EGPD_Output);
 		UEdGraphPin* NegativePin = Context.FindRequiredPinByName(Node, TriGatePN::Negative, EGPD_Output);
 		
 		FBPTerminal* BoolTerm = BoolTermMap.FindRef(MyNode);
 		
-		// TODO:
-		FBPTerminal* InputTerm = new FBPTerminal();
+		//// TODO:
+		//FBPTerminal* InputTerm = new FBPTerminal();
 
-		UClass* MathLibClass = UKismetMathLibrary::StaticClass();
-		UFunction* CreaterFuncPtr = FindField<UFunction>(MathLibClass, "Greater_IntInt");
-		UFunction* EqualFuncPtr = FindField<UFunction>(MathLibClass, "EqualEqual_IntInt");
+		//UClass* MathLibClass = UKismetMathLibrary::StaticClass();
+		//UFunction* CreaterFuncPtr = FindField<UFunction>(MathLibClass, "Greater_IntInt");
+		//UFunction* EqualFuncPtr = FindField<UFunction>(MathLibClass, "EqualEqual_IntInt");
 
-		// Statement 1: BoolTerm = Interger > 0
-		FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(MyNode);
-		Statement.Type = KCST_CallFunction;
-		Statement.FunctionToCall = CreaterFuncPtr;
-		Statement.LHS = BoolTerm;
-		Statement.RHS.Add(InputTerm);
-		Statement.RHS.Add(LiteralZeroTerm);
+		//// Statement 1: BoolTerm = Interger > 0
+		//FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(MyNode);
+		//Statement.Type = KCST_CallFunction;
+		//Statement.FunctionToCall = CreaterFuncPtr;
+		//Statement.LHS = BoolTerm;
+		//Statement.RHS.Add(InputTerm);
+		//Statement.RHS.Add(LiteralZeroTerm);
 
-		// Statement 2: GotoIfNot(BoolTerm)
+		//// Statement 2: GotoIfNot(BoolTerm)
 
-		// Statement 3: BoolTerm = Interger == 0
+		//// Statement 3: BoolTerm = Interger == 0
 
-		// Statement 4: GotoIfNot(BoolTerm)
+		//// Statement 4: GotoIfNot(BoolTerm)
 
 		// Statement 5: Exec
 		FBlueprintCompiledStatement& GotoThen = Context.AppendStatementForNode(Node);
@@ -118,5 +118,5 @@ void UBPNode_TriGate::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRe
 
 FNodeHandlingFunctor * UBPNode_TriGate::CreateNodeHandler(FKismetCompilerContext & CompilerContext) const
 {
-	return nullptr;
+	return new FKCHandler_TriGate(CompilerContext);
 }
