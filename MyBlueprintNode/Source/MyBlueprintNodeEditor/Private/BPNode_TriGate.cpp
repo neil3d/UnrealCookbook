@@ -67,57 +67,61 @@ public:
 			CompilerContext.MessageLog.Error(TEXT("FKCHandler_TriGate: Failed to resolve term passed into"), InputPin);
 			return;
 		}
-		
+
 		FBPTerminal* InputTerm = *pInputTerm;
 
 		// 查找三个输出Pin
 		UEdGraphPin* PositivePin = MyNode->FindPin(TriGatePN::Positive, EGPD_Output);
 		UEdGraphPin* ZeroPin = MyNode->FindPin(TriGatePN::Zero, EGPD_Output);
 		UEdGraphPin* NegativePin = MyNode->FindPin(TriGatePN::Negative, EGPD_Output);
-		
+
 		// 临时bool变量的Terminal
 		FBPTerminal* BoolTerm = BoolTermMap.FindRef(MyNode);
-		
 
 		UClass* MathLibClass = UKismetMathLibrary::StaticClass();
 		UFunction* CreaterFuncPtr = FindField<UFunction>(MathLibClass, "Greater_IntInt");
 		UFunction* EqualFuncPtr = FindField<UFunction>(MathLibClass, "EqualEqual_IntInt");
 
 		// Statement 1: 计算表达式 BoolTerm = Interger > 0
-		{
-			FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(MyNode);
-			Statement.Type = KCST_CallFunction;
-			Statement.FunctionToCall = CreaterFuncPtr;
-			Statement.LHS = BoolTerm;
-			Statement.RHS.Add(InputTerm);
-			Statement.RHS.Add(LiteralZeroTerm);
-		}
+		FBlueprintCompiledStatement& CallCreaterZero = Context.AppendStatementForNode(MyNode);
+		CallCreaterZero.Type = KCST_CallFunction;
+		CallCreaterZero.FunctionToCall = CreaterFuncPtr;
+		CallCreaterZero.LHS = BoolTerm;
+		CallCreaterZero.RHS.Add(InputTerm);
+		CallCreaterZero.RHS.Add(LiteralZeroTerm);
 
-		// Statement 3: GotoIfNot(BoolTerm)
-		{
-			FBlueprintCompiledStatement& SkipIfGoto = Context.AppendStatementForNode(Node);
-			SkipIfGoto.Type = KCST_GotoIfNot;
-			SkipIfGoto.LHS = BoolTerm;
-			Context.GotoFixupRequestMap.Add(&SkipIfGoto, NegativePin);
-		}
+		// Statement 2: if(BoolTerm)
+		FBlueprintCompiledStatement& IfPositive = Context.AppendStatementForNode(Node);
+		IfPositive.Type = KCST_GotoIfNot;
+		IfPositive.LHS = BoolTerm;
 
-		// Statement 2: 执行 Positive Pin
-		{
-			FBlueprintCompiledStatement& GotoThen = Context.AppendStatementForNode(Node);
-			GotoThen.Type = KCST_UnconditionalGoto;
-			Context.GotoFixupRequestMap.Add(&GotoThen, PositivePin);
-		}
+		// Statement 3: 执行 Positive Pin
+		FBlueprintCompiledStatement& ExecPositive = Context.AppendStatementForNode(Node);
+		ExecPositive.Type = KCST_UnconditionalGoto;
+		Context.GotoFixupRequestMap.Add(&ExecPositive, PositivePin);
 
-		//// Statement 3: BoolTerm = Interger == 0
+		// Statement 4: 计算表达式 BoolTerm = Interger == 0
+		FBlueprintCompiledStatement& CallEqualZero = Context.AppendStatementForNode(MyNode);
+		CallEqualZero.Type = KCST_CallFunction;
+		CallEqualZero.FunctionToCall = EqualFuncPtr;
+		CallEqualZero.LHS = BoolTerm;
+		CallEqualZero.bIsJumpTarget = true;
+		CallEqualZero.RHS.Add(InputTerm);
+		CallEqualZero.RHS.Add(LiteralZeroTerm);
 
-		//// Statement 4: GotoIfNot(BoolTerm)
+		IfPositive.TargetLabel = &CallEqualZero;
 
-		// Statement 5: Exec
-		{
-			FBlueprintCompiledStatement& GotoThen = Context.AppendStatementForNode(Node);
-			GotoThen.Type = KCST_UnconditionalGoto;
-			Context.GotoFixupRequestMap.Add(&GotoThen, NegativePin);
-		}
+		// Statement 5: GotoIfNot(BoolTerm)
+		FBlueprintCompiledStatement& IfZero = Context.AppendStatementForNode(Node);
+		IfZero.Type = KCST_GotoIfNot;
+		IfZero.LHS = BoolTerm;
+		Context.GotoFixupRequestMap.Add(&IfZero, NegativePin);
+
+		// Statement 6: 执行 Zero Pin
+		FBlueprintCompiledStatement& ExecZero = Context.AppendStatementForNode(Node);
+		ExecZero.Type = KCST_UnconditionalGoto;
+		Context.GotoFixupRequestMap.Add(&ExecZero, ZeroPin);
+
 	}
 };
 
