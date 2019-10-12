@@ -8,6 +8,10 @@
 #include "K2Node_CallFunction.h"	// BlueprintGraph
 #include "K2Node_MakeArray.h"	// BlueprintGraph
 #include "KismetCompiler.h"	// KismetCompiler
+#include "EdGraph/EdGraphNode.h"
+#include "ScopedTransaction.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 #include "MyBlueprintFunctionLibrary.h"	// MyBlueprintNode
 
@@ -19,6 +23,33 @@ void UBPNode_SaySomething::AllocateDefaultPins() {
 	for (const FName& PinName : ArgPinNames) {
 		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, PinName);
 	}
+}
+
+void UBPNode_SaySomething::GetContextMenuActions(const FGraphNodeContextMenuBuilder & Context) const
+{
+	Super::GetContextMenuActions(Context);
+
+	if (Context.bIsDebugging)
+		return;
+
+	Context.MenuBuilder->BeginSection("UBPNode_SaySomething", FText::FromString(TEXT("Say Something")));
+
+	if (Context.Pin != nullptr)
+	{
+		if (Context.Pin->Direction == EGPD_Input && Context.Pin->ParentPin == nullptr)
+		{
+			Context.MenuBuilder->AddMenuEntry(
+				FText::FromString(TEXT("Remove Word")),
+				FText::FromString(TEXT("Remove Word from input")),
+				FSlateIcon(),
+				FUIAction(
+					FExecuteAction::CreateUObject(this, &UBPNode_SaySomething::RemoveInputPin, const_cast<UEdGraphPin*>(Context.Pin))
+				)
+			);
+		}
+	}// end of if
+
+	Context.MenuBuilder->EndSection();
 }
 
 void UBPNode_SaySomething::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const {
@@ -59,7 +90,7 @@ void UBPNode_SaySomething::ExpandNode(FKismetCompilerContext & CompilerContext, 
 		UEdGraphPin* ArrayOut = MakeArrayNode->GetOutputPin();
 		UEdGraphPin* FuncArgPin = CallFuncNode->FindPinChecked(TEXT("InWords"));
 		ArrayOut->MakeLinkTo(FuncArgPin);
-		
+
 		// This will set the "Make Array" node's type, only works if one pin is connected.
 		MakeArrayNode->PinConnectionListChanged(ArrayOut);
 
@@ -97,11 +128,25 @@ TSharedPtr<SGraphNode> UBPNode_SaySomething::CreateVisualWidget() {
 
 void UBPNode_SaySomething::AddPinToNode()
 {
-	TMap<FString, FStringFormatArg> FormatArgs= {
+	Modify();
+
+	TMap<FString, FStringFormatArg> FormatArgs = {
 			{TEXT("Count"), ArgPinNames.Num()}
 	};
+
 	FName NewPinName(*FString::Format(TEXT("Word {Count}"), FormatArgs));
 	ArgPinNames.Add(NewPinName);
 
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, NewPinName);
+}
+
+void UBPNode_SaySomething::RemoveInputPin(UEdGraphPin * Pin)
+{
+	FScopedTransaction Transaction(FText::FromString("SaySomething_RemoveInputPin"));
+	Modify();
+
+	ArgPinNames.Remove(Pin->GetFName());
+
+	RemovePin(Pin);
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(GetBlueprint());
 }

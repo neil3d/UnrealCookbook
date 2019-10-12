@@ -20,6 +20,7 @@ public:
 
 	virtual FText GetTooltipText() const override { return FText::FromString(TEXT("a dynamic pin demo node")); }
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Say Something")); }
+	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
 	// End of UEdGraphNode interface
 
 	// UK2Node interface
@@ -35,6 +36,8 @@ public:
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
 
 	void AddPinToNode();
+
+	void RemoveInputPin(UEdGraphPin* Pin);
 	// End
 
 private:
