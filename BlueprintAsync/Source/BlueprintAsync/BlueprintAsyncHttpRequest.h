@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHttpResponseDelegatge, int32, Code
 /**
  * 
  */
-UCLASS(meta=(HideThen=true))
+UCLASS()
 class BLUEPRINTASYNC_API UBlueprintAsyncHttpRequest : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
