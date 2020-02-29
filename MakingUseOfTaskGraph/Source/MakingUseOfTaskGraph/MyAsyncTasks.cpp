@@ -3,3 +3,7 @@
 
 #include "MyAsyncTasks.h"
 
+namespace neil3d
+{
+
+}// end of namespace

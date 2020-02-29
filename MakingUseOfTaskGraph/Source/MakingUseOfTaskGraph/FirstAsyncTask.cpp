@@ -2,26 +2,22 @@
 
 
 #include "FirstAsyncTask.h"
+#include "MyAsyncTasks.h"
+
+using namespace neil3d;
 
 // Sets default values
 AFirstAsyncTask::AFirstAsyncTask()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
-void AFirstAsyncTask::BeginPlay()
+void AFirstAsyncTask::AsyncLoadTextFile(const FString& FilePath)
 {
-	Super::BeginPlay();
+	FTaskDelegate_FileLoaded TaskDelegate;
+	TaskDelegate.BindUFunction(this, "OnFileLoaded");
 	
-}
-
-// Called every frame
-void AFirstAsyncTask::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	FGraphEventRef NewTask = TGraphTask<FTask_LoadFileToString>::CreateTask(nullptr, ENamedThreads::GameThread).
+		ConstructAndDispatchWhenReady(FilePath, TaskDelegate);
 }
 

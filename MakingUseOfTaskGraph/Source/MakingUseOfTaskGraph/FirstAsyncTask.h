@@ -4,23 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MyAsyncTasks.h"
 #include "FirstAsyncTask.generated.h"
 
 UCLASS()
 class MAKINGUSEOFTASKGRAPH_API AFirstAsyncTask : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	AFirstAsyncTask();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+		void AsyncLoadTextFile(const FString& FilePath);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnFileLoaded(const FString& FileContent);
 
 };
