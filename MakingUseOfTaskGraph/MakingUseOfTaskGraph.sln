@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.25807.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{3FAB3D5D-6C25-4FD2-9029-727263FFA974}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{8BD5306E-C17A-4980-9123-C451DDAAF949}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{D02B4325-9E9E-4062-A551-020FD50D8D38}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{4896C370-B04B-4A0C-8F04-3A451AD8387C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4", "Intermediate\ProjectFiles\UE4.vcxproj", "{C6845317-1C0D-4EC3-9A31-803DDE977183}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakingUseOfTaskGraph", "Intermediate\ProjectFiles\MakingUseOfTaskGraph.vcxproj", "{401300CF-F6AF-42C7-A838-47421C12A989}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visualizers", "Visualizers", "{4884FD99-2028-4E21-AB0F-F101C8661694}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visualizers", "Visualizers", "{711BF154-E531-48FC-86B6-CAD48B6A5886}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\..\EpicGames\UE_4.23\Engine\Extras\VisualStudioDebugging\UE4.natvis = ..\..\..\EpicGames\UE_4.23\Engine\Extras\VisualStudioDebugging\UE4.natvis
 	EndProjectSection
@@ -63,7 +63,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C6845317-1C0D-4EC3-9A31-803DDE977183} = {3FAB3D5D-6C25-4FD2-9029-727263FFA974}
-		{401300CF-F6AF-42C7-A838-47421C12A989} = {D02B4325-9E9E-4062-A551-020FD50D8D38}
+		{C6845317-1C0D-4EC3-9A31-803DDE977183} = {8BD5306E-C17A-4980-9123-C451DDAAF949}
+		{401300CF-F6AF-42C7-A838-47421C12A989} = {4896C370-B04B-4A0C-8F04-3A451AD8387C}
 	EndGlobalSection
 EndGlobal
