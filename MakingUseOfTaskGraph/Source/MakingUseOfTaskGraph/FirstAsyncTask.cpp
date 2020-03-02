@@ -73,8 +73,9 @@ public:
 		}
 
 		// create completion task
-		FGraphEventRef ChildTask = TGraphTask<FTaskCompletion_LoadFileToString>::CreateTask(nullptr, ENamedThreads::GameThread).
+		FGraphEventRef ChildTask = TGraphTask<FTaskCompletion_LoadFileToString>::CreateTask(nullptr, CurrentThread).
 			ConstructAndDispatchWhenReady(TaskDelegate, FileContent);
+		MyCompletionGraphEvent->SetGatherThreadForDontCompleteUntil(ENamedThreads::GameThread);
 		MyCompletionGraphEvent->DontCompleteUntil(ChildTask);
 	}
 };
