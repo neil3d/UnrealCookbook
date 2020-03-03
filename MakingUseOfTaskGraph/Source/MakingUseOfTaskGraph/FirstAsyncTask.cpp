@@ -93,6 +93,6 @@ void AFirstAsyncTask::AsyncLoadTextFile(const FString& FilePath)
 	FTaskDelegate_FileLoaded TaskDelegate;
 	TaskDelegate.BindUFunction(this, "OnFileLoaded");
 
-	TGraphTask<FTask_LoadFileToString>::CreateTask().ConstructAndDispatchWhenReady(FilePath, TaskDelegate);
+	TGraphTask<FTask_LoadFileToString>::CreateTask(nullptr, ENamedThreads::GameThread).ConstructAndDispatchWhenReady(FilePath, TaskDelegate);
 }
 
