@@ -8,10 +8,14 @@
 #include "Dom/JsonValue.h"	// Json
 #include "ForkJoinDemo.generated.h"
 
+DECLARE_DELEGATE_OneParam(FTaskDelegate_StockAnalyzeComplete, FVector);
+
 struct FStockAnalyzeContext
 {
 	bool bRunning = false;
 	FString DataFilePath;
+	FTaskDelegate_StockAnalyzeComplete CompletionDelegate;
+
 	TArray<TSharedPtr<FJsonValue>> StockData;
 	FVector Result;	// {X:max, Y:min, Z:average}
 
