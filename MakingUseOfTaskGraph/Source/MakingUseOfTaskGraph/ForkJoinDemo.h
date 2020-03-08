@@ -4,7 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Dom/JsonObject.h"	// Json
 #include "ForkJoinDemo.generated.h"
+
+struct FStockAnalyzeContext
+{
+	FString DataFilePath;
+	TSharedPtr<FJsonObject> StockData;
+	FVector Result;	// {X:max, Y:min, Z:average}
+};
 
 UCLASS()
 class MAKINGUSEOFTASKGRAPH_API AForkJoinDemo : public AActor
@@ -15,12 +23,13 @@ public:
 	// Sets default values for this actor's properties
 	AForkJoinDemo();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+		void AsyncAnalyzeStockData(const FString& FilePath);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnAnalyzeComplete(FVector Result);
+
+protected:
+	FStockAnalyzeContext TaskContext;
 
 };
