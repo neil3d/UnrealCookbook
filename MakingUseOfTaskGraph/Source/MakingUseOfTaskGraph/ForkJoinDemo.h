@@ -5,13 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Dom/JsonObject.h"	// Json
+#include "Dom/JsonValue.h"	// Json
 #include "ForkJoinDemo.generated.h"
 
 struct FStockAnalyzeContext
 {
+	bool bRunning = false;
 	FString DataFilePath;
-	TSharedPtr<FJsonObject> StockData;
+	TArray<TSharedPtr<FJsonValue>> StockData;
 	FVector Result;	// {X:max, Y:min, Z:average}
+
+	int32 GetStockDataCount() const;
+	float GetStockData(int32 Index) const;
 };
 
 UCLASS()
