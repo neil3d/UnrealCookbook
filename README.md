@@ -8,6 +8,7 @@
 | 目录 | 简单说明 | 详细文档 |
 |-|-|-|
 |   **Blueprint Async** |   将异步操作封装为蓝图节点    |   https://zhuanlan.zhihu.com/p/107021667  |
+|   **MakingUseOfTaskGraph** | TaskGraph实用指南 |  https://zhuanlan.zhihu.com/ue4-modern-cpp  |
 |   **MyBlueprintNode** |   深入Unreal蓝图开发  |   https://zhuanlan.zhihu.com/blueprints-in-depth  |
 |   **MySubObjectTest** |   使用 UObject 派生类对象作为属性 | TODO  |
 |   **Project2015** |   2015年的一些例子集合，每个 Map 是一个单独的例子 |   https://neil3d.gitee.io/unreal/ue-cookbook.html |
