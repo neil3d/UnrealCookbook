@@ -5,9 +5,12 @@
 
 ## Runtime 模块
 
-- UMyBlueprintFunctionLibrary：实现蓝图模板函数
+- UBlueprintWildcardLibrary：实现蓝图模板函数
     * 详见知乎专栏：https://zhuanlan.zhihu.com/p/84956153
     * 或者 GitHub Page: https://neil3d.gitee.io/unreal/blueprint-wildcard.html
+
+- UMyBlueprintFunctionLibrary：
+	* Editor 模块的自定义蓝图节点所使用的 Blueprint Internal 函数
 
 ## Editor 模块
 
