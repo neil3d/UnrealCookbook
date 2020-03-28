@@ -1,0 +1,3 @@
+[submodule "AnimatedGIFDemo/Plugins/AnimatedTexturePlugin"]
+	path = AnimatedGIFDemo/Plugins/AnimatedTexturePlugin
+	url = git@github.com:neil3d/UnrealAnimatedTexturePlugin.git
