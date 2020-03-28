@@ -1,11 +1,4 @@
-# Unreal Animated Textured Demo
+# GIF动画贴图Demo
 
-## Project Setup
-
-``` shell
-git clone git@github.com:neil3d/UnrealAnimatedTextureDemo.git
-cd UnrealAnimatedTextureDemo
-
-git submodule init
-git submodule update
-```
+- 基于 [Animated Texture 插件](https://github.com/neil3d/UnrealAnimatedTexturePlugin)    
+- 详见文档：https://neil3d.gitee.io/coding/anim-texture.html  |
