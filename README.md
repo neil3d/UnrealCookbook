@@ -6,8 +6,9 @@
 ## Project Setup
 
 ``` shell
-git clone git@github.com:neil3d/UnrealCookBook.git
-cd UnrealCookBook
+git clone git@github.com:neil3d/UnrealCookbook.git
+cd UnrealCookbook
+
 git submodule init
 git submodule update
 ```
