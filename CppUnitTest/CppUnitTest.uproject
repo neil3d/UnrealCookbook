@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.23",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CppUnitTest",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "FunctionalTestingEditor",
+			"Enabled": true
+		},
+		{
+			"Name": "RuntimeTests",
+			"Enabled": true
+		}
+	]
+}
