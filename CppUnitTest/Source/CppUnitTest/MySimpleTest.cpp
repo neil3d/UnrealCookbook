@@ -11,6 +11,8 @@ bool FMySimpleTest::RunTest(const FString& Parameters) {
   TestEqual(TEXT("My first test case"), 2, 1 + 1);
 
   TestEqual(TEXT("My second test case"), 2, 2 + 1);
+
+  UE_LOG(LogTemp, Error, TEXT("log error test"));
   return true;
 }
 
