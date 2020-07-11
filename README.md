@@ -19,6 +19,7 @@ git submodule update
 |-|-|-|
 |   **AnimatedGIFDemo** |   GIF动画贴图Demo，基于 [Animated Texture 插件](https://github.com/neil3d/UnrealAnimatedTexturePlugin)    |   https://neil3d.gitee.io/coding/anim-texture.html  |
 |   **BlueprintAsync** |   将异步操作封装为蓝图节点    |   https://zhuanlan.zhihu.com/p/107021667  |
+|   **CppUnitTest** |   使用Automation系统进行单元测试    |   https://neil3d.gitee.io/unreal/ue4_cpp_unit_test.html  |
 |   **MakingUseOfTaskGraph** | TaskGraph实用指南 |  https://zhuanlan.zhihu.com/ue4-modern-cpp  |
 |   **MyBlueprintNode** |   深入Unreal蓝图开发  |   https://zhuanlan.zhihu.com/blueprints-in-depth  |
 |   **MySubObjectTest** |   使用 UObject 派生类对象作为属性 | TODO  |
