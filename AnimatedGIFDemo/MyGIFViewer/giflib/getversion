@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# getversion - get the librarty version by analyzing its header
+#
+# Done this way so there's a single point of truth about the version.
+#
+MAJOR=`sed <gif_lib.h -n -e "/MAJOR/s/#define GIFLIB_MAJOR  *//p"`
+MINOR=`sed <gif_lib.h -n -e "/MINOR/s/#define GIFLIB_MINOR  *//p"`
+RELEASE=`sed <gif_lib.h -n -e "/RELEASE/s/#define GIFLIB_RELEASE  *//p"`
+echo ${MAJOR}.${MINOR}.${RELEASE}

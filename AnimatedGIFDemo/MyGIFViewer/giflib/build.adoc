@@ -1,0 +1,52 @@
+= Build instructions =
+
+== Building ==
+
+Building this package from a distribution tarball should be as simple as
+running make.  Install with "make install" as root.
+
+You will need xmlto to build the derived forms of the documentation
+from the DocBook-XML sources.  If you are going no modify the website,
+you will also need to have asciidoc and the ImageMagick convert(1)
+utility installed.
+
+== Testing ==
+
+You can run "make check" after the library and utilities have been built
+to see a regression test of the codebase. No output (other than
+the test header lines) is good news.
+
+== Portability note ==
+
+This codebase now assumes your compiler is C99-conformant.  If it
+isn't, the most likely trouble spot is "#include <stdint.h>"; your
+compiler may be looking for "inttypes.h" instead.  By test, the code
+is backward-conformant to C89 except that it uses bool/true/false. 
+
+One (minimal but sufficient) concession to Windows portability has been
+make; inclusion of <unistd.h> is conditional on _WIN32 not being
+defined by the compiler (if it is <io.h> is included
+instead). Requests to go any further out of the way to accommodate
+Microsoft's toolchains are unlikely be looked on favorably.
+
+== Release Procedure ==
+
+1. Check the SourceForge tracker for bugs and patches.
+
+2. Bump the version number in gif_lib.h.  Do "make version"
+   to confirm that it looks sane when extracted to the Makefile.
+
+3. Version-stamp the top entry in the NEWS file. 
+
+4. If you are changing major versions, sync the XBS-SourceForge-Folder
+   attribute in the control file.
+
+5. 'make dist' to make a tarball.
+
+6. Tag the release in the repo.
+
+7. Ship the release tarball.
+
+The last three steps can be done with "make release" if you have shipper
+installed.
+
