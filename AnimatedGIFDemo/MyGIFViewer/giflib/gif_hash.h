@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 #define _GIF_HASH_H_
 
 #if defined(WIN32)
-#include "unistd.h"
+#include <io.h>
 #else
 #include <unistd.h>
 #endif

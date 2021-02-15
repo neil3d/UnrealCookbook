@@ -10,13 +10,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(SDL2 CONFIG REQUIRED)
-aux_source_directory(./getopt GETOPT_SRC)
 
 # Add source to this project's executable.
 add_executable (MyGIFViewer "main.cpp"
 							"MyGIFViewer.cpp" "MyGIFViewer.h" 
 							"AnimatedGIF.cpp" "AnimatedGIF.h"
-							${GETOPT_SRC}
 							"./giflib/dgif_lib.c"
 							"./giflib/gifalloc.c"
 							"./giflib/gif_err.c"
