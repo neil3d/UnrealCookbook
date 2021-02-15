@@ -171,8 +171,8 @@ void FAnimatedGIF::_GCB_Background(int left, int top, int width, int height,
                                    ColorMapObject* colorMap,
                                    bool bTransparent) {
   const GifColorType& colorEntry = colorMap->Colors[mGIF->SBackGroundColor];
-  Pixel bg = {colorEntry.Red, colorEntry.Green, colorEntry.Blue,
-              bTransparent ? 0 : 255};
+  uint8_t alpha = static_cast<uint8_t>(bTransparent ? 0 : 255);
+  Pixel bg = {colorEntry.Red, colorEntry.Green, colorEntry.Blue, alpha};
 
   int frameWidth = getWidth();
   for (int y = top; y < top + height; y++) {
