@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MyObjectTreeNode.h"
 #include "MyObjectExplorerWidget.generated.h"
 
 /**
@@ -15,6 +16,12 @@ class MYOBJECTEXPLOREREDITOR_API UMyObjectExplorerWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, Category = "MyObjectExplorer")
-		void ShowObjects(const TArray<UObject*>& InObjects);
+	void ShowObjects(const TArray<UObject*>& InObjects);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = MyObjectExplorer, meta = (DisplayName = "ShowObjects"))
+		void Event_ShowObjects();
+
+protected:
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
+		TArray<UMyObjectTreeNode*> RootNodes;
 };
