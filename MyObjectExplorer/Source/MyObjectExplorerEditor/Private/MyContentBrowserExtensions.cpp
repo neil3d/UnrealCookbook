@@ -6,6 +6,8 @@
 #include "ContentBrowserDelegates.h"	// ContentBrowser
 #include "EditorStyleSet.h"		// EditorStyle
 #include "Styling/ISlateStyle.h"	// 	SlateCore
+#include "Kismet/GameplayStatics.h" // Engine
+#include "MyObjectExplorerWidget.h"
 
 static FContentBrowserMenuExtender_SelectedAssets ContentBrowserExtenderDelegate;
 static FDelegateHandle ContentBrowserExtenderDelegateHandle;
@@ -13,7 +15,7 @@ static FDelegateHandle ContentBrowserExtenderDelegateHandle;
 struct FContentBrowserSelectedAssetExtensionBase
 {
 public:
-	TArray<struct FAssetData> SelectedAssets;
+	TArray<FAssetData> SelectedAssets;
 
 public:
 	virtual void Execute() {}
@@ -26,8 +28,60 @@ struct FMyObjectExplorerExtension : public FContentBrowserSelectedAssetExtension
 	virtual void Execute() override
 	{
 		UE_LOG(LogTemp, Log, TEXT("Begin of UObject Explorer"));
-		for(const auto& asset:SelectedAssets)
+
+		// load asset objects
+		TArray<UObject*> AssetObjects;
+		for (const auto& asset : SelectedAssets)
+		{
 			UE_LOG(LogTemp, Log, TEXT("\t %s"), *(asset.AssetName.ToString()));
+			UObject* Asset = asset.GetAsset();
+			AssetObjects.Add(Asset->GetOutermost());
+		}
+
+		// load UMG widget
+		FStringClassReference StrWidgetClass(TEXT("/Game/UI/UI_MyObjectExplorer.UI_MyObjectExplorer_C"));
+		UClass* WidgetClass = StrWidgetClass.TryLoadClass<UUserWidget>();
+		UMyObjectExplorerWidget* Widget = nullptr;
+		if (WidgetClass)
+		{
+			UWorld* World = GEditor->GetEditorWorldContext().World();
+			if (World)
+			{
+				Widget = CreateWidget<UMyObjectExplorerWidget, UWorld>(World, WidgetClass);
+				if (Widget)
+				{
+					Widget->ShowObjects(AssetObjects);
+
+					// create a standalone Slate Window
+					TSharedRef<SWindow> MainWindow =
+						SNew(SWindow)
+						.AutoCenter(EAutoCenter::PreferredWorkArea)
+						.ClientSize(FVector2D(800, 600))
+						.CreateTitleBar(true)
+						.Title(FText::FromString("My Object Explorer"))
+						.IsInitiallyMaximized(false)
+						.HasCloseButton(true)
+						.MinWidth(400)
+						.MinHeight(300)
+						[
+							SNew(SBorder)
+							.Padding(4.f)
+							.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+							[
+								Widget->TakeWidget()
+							]
+						];
+
+					FSlateApplication::Get().AddWindow(MainWindow);
+				}
+			}
+		}
+
+		if (!Widget)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UI_MyObjectExplorer load FAILED."));
+		}
+
 		UE_LOG(LogTemp, Log, TEXT("End of  UObject Explorer"));
 	}
 };
