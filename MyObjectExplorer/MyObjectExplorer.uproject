@@ -11,15 +11,6 @@
 			"AdditionalDependencies": [
 				"UMG"
 			]
-		},
-		{
-			"Name": "MyObjectExplorerEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"UMG",
-				"CoreUObject"
-			]
 		}
 	]
 }

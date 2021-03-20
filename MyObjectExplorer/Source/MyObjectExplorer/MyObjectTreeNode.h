@@ -10,7 +10,7 @@
  *
  */
 UCLASS(BlueprintType)
-class MYOBJECTEXPLOREREDITOR_API UMyObjectTreeNode : public UObject
+class MYOBJECTEXPLORER_API UMyObjectTreeNode : public UObject
 {
 	GENERATED_BODY()
 
@@ -22,6 +22,12 @@ public:
 
 public:
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
+		int Depth = 0;
+
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
+		int NumChildren = 0;
+
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
 		FString RefType;
 
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
@@ -29,6 +35,9 @@ public:
 
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = MyObjectExplorer)
 		FString Name;
+
+private:
+	TArray<UObject*> GetChildObjects() const;
 
 private:
 	UPROPERTY(Transient)
