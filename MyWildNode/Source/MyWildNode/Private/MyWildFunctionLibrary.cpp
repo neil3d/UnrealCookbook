@@ -4,7 +4,7 @@
 #include "MyWildFunctionLibrary.h"
 
 
-void UMyWildFunctionLibrary::MyGenericInvoke_P1_Impl(const void* StructAddr, const FStructProperty* StructProperty)
+void UMyWildFunctionLibrary::MyGenericInvoke(const FMyVarParam& InArgs)
 {
-	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke_P1_Impl"));
+	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke(%f)"), InArgs.fValue);
 }

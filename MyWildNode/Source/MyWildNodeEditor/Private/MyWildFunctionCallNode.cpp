@@ -13,6 +13,7 @@
 #include "K2Node_CallFunction.h"	// BlueprintGraph
 #include "KismetCompiler.h"	// KismetCompiler
 #include "K2Node_MakeStruct.h"
+#include "K2Node_MakeArray.h"
 #include "MyWildFunctionLibrary.h"
 
 
@@ -67,18 +68,12 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 
 	UEdGraphPin* ExecPin = GetExecPin();
 	UEdGraphPin* ThenPin = GetThenPin();
+	UEdGraphPin* ParamPin = FindPinChecked(TEXT("Param1"), EGPD_Input);
+	const FName& ParamType = ParamPin->PinType.PinCategory;
 
 	if (ExecPin && ThenPin) {
-
-
-		TArray<UEdGraphPin*> CachedParamPins;
-		// 测试代码：这里架设有一个输入参数Pin
-		CachedParamPins.Add(FindPin(TEXT("Param1"), EGPD_Input));
-		int ParamCount = CachedParamPins.Num();
-
 		// create a CallFunction node
-		// TODO: 根据 ParamCount 选择不同的 Invoke 函数
-		FName MyFunctionName = GET_FUNCTION_NAME_CHECKED(UMyWildFunctionLibrary, MyGenericInvoke_P1);
+		FName MyFunctionName = GET_FUNCTION_NAME_CHECKED(UMyWildFunctionLibrary, MyGenericInvoke);
 
 		UK2Node_CallFunction* CallFuncNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
 		CallFuncNode->FunctionReference.SetExternalMember(MyFunctionName, UMyWildFunctionLibrary::StaticClass());
@@ -87,16 +82,26 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		// move pins
 		CompilerContext.MovePinLinksToIntermediate(*ExecPin, *(CallFuncNode->GetExecPin()));
 		CompilerContext.MovePinLinksToIntermediate(*ThenPin, *(CallFuncNode->GetThenPin()));
-		UEdGraphPin* FuncParamPin = CallFuncNode->FindPinChecked(TEXT("Param1"));
-
-
+		
 		// param pin
 		// 需要通过一个 "Make Struct" node 来对 Wildcard Pin 进行处理
-		if (ParamCount > 0)
-		{
-			UEdGraphPin* ArgumentPin = CachedParamPins[0];
-			CompilerContext.MovePinLinksToIntermediate(*ArgumentPin, *FuncParamPin);
+
+		// Spawn a "Make Struct" node to create the struct needed for formatting the text.
+		UK2Node_MakeStruct* MakeFormatArgumentDataStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
+		MakeFormatArgumentDataStruct->StructType = FMyVarParam::StaticStruct();
+		MakeFormatArgumentDataStruct->AllocateDefaultPins();
+		MakeFormatArgumentDataStruct->bMadeAfterOverridePinRemoval = true;
+		CompilerContext.MessageLog.NotifyIntermediateObjectCreation(MakeFormatArgumentDataStruct, this);
+
+		// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换和包装。。。。
+		// FMyVarParam 中的 UProperty 会产生 Pin，自动把输入参数连过来
+		UEdGraphPin* fValue = MakeFormatArgumentDataStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue));
+		if (ParamType == UEdGraphSchema_K2::PC_Float) {
+			CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeFormatArgumentDataStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue)));
 		}
+
+		// Find the output for the pin's "Make Struct" node and link it to the corresponding pin on the "Make Array" node.
+		FindOutputStructPinChecked(MakeFormatArgumentDataStruct)->MakeLinkTo(CallFuncNode->FindPinChecked(TEXT("InArgs"), EGPD_Input));
 	}
 
 	// break any links to the expanded node

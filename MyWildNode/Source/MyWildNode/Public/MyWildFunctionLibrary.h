@@ -4,11 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Misc/Variant.h"
 #include "MyWildFunctionLibrary.generated.h"
 
-USTRUCT(BlueprintInternalUseOnly)
-struct FDummyStruct {
+USTRUCT(BlueprintType)
+struct FMyVarParam {
 	GENERATED_USTRUCT_BODY()
+
+public:
+	//TODO: ≥¢ ‘ π”√ FVariant var;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float fValue;
 };
 
 /**
@@ -20,23 +27,9 @@ class MYWILDNODE_API UMyWildFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	//BlueprintInternalUseOnly = "true",
-	UFUNCTION(BlueprintCallable, CustomThunk, Category= MyWildDemo, meta = (CustomStructureParam = "Param1"))
-		static void MyGenericInvoke_P1(const FDummyStruct& Param1);
-	static void MyGenericInvoke_P1_Impl(const void* StructAddr, const FStructProperty* StructProperty);
+	UFUNCTION(BlueprintCallable, Category = MyWildDemo)
+		static void MyGenericInvoke(const FMyVarParam& InArgs);
 
-	DECLARE_FUNCTION(execMyGenericInvoke_P1) {
-		Stack.MostRecentPropertyAddress = nullptr;
-		Stack.MostRecentProperty = nullptr;
-
-		Stack.StepCompiledIn<FStructProperty>(NULL);
-		void* StructAddr = Stack.MostRecentPropertyAddress;
-		FStructProperty* StructProperty = Cast<FStructProperty>(Stack.MostRecentProperty);
-
-		P_FINISH;
-
-		P_NATIVE_BEGIN;
-		MyGenericInvoke_P1_Impl(StructAddr, StructProperty);
-		P_NATIVE_END;
-	}
+	//static void MyGenericInvoke(const TArray<FMyVarParam>& InArgs);
 
 };
