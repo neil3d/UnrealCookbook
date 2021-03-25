@@ -28,7 +28,7 @@ class MYWILDNODE_API UMyWildFunctionLibrary : public UBlueprintFunctionLibrary
 public:
 	//BlueprintInternalUseOnly = "true",
 	UFUNCTION(BlueprintCallable, Category = MyWildDemo)
-		static void MyGenericInvoke(const FMyVarParam& InArgs);
+		static void MyGenericInvoke(const FString& FuncName, const FMyVarParam& InArgs);
 
 	//static void MyGenericInvoke(const TArray<FMyVarParam>& InArgs);
 

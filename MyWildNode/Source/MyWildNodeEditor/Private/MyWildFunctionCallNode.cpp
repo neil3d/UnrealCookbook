@@ -39,7 +39,7 @@ void UMyWildFunctionCallNode::AllocateDefaultPins()
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);
 
-	CachedFuncNamePin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Text, TEXT("FuncName"));
+	CachedFuncNamePin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, TEXT("FuncName"));
 
 	// TODO: 这里就临时创建一个“输入参数”Pin，后续可以添加UI，动态增加
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param1");
@@ -68,6 +68,7 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 
 	UEdGraphPin* ExecPin = GetExecPin();
 	UEdGraphPin* ThenPin = GetThenPin();
+	UEdGraphPin* FuncNamePin = FindPinChecked(TEXT("FuncName"), EGPD_Input);
 	UEdGraphPin* ParamPin = FindPinChecked(TEXT("Param1"), EGPD_Input);
 	const FName& ParamType = ParamPin->PinType.PinCategory;
 
@@ -82,6 +83,7 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		// move pins
 		CompilerContext.MovePinLinksToIntermediate(*ExecPin, *(CallFuncNode->GetExecPin()));
 		CompilerContext.MovePinLinksToIntermediate(*ThenPin, *(CallFuncNode->GetThenPin()));
+		CompilerContext.MovePinLinksToIntermediate(*FuncNamePin, *(CallFuncNode->FindPinChecked(TEXT("FuncName"), EGPD_Input)));
 		
 		// param pin
 		// 需要通过一个 "Make Struct" node 来对 Wildcard Pin 进行处理
