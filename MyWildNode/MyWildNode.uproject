@@ -7,11 +7,14 @@
 		{
 			"Name": "MyWildNode",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		},
 		{
 			"Name": "MyWildNodeEditor",
-			"Type": "Editor",
+			"Type": "Developer",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"BlueprintGraph"

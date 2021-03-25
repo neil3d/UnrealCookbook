@@ -1,16 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "K2Node_CallFunction.h"
+#include "K2Node.h"
 #include "MyWildFunctionCallNode.generated.h"
 
 /**
- * À¶Í¼¶¯Ì¬½Úµã£ºº¯Êıµ÷ÓÃµÄ²ÎÊı¸öÊıºÍ²ÎÊıÀàĞÍ¶¼¿ÉÒÔ¶¯Ì¬ÅäÖÃ
+ * è“å›¾åŠ¨æ€èŠ‚ç‚¹ï¼šå‡½æ•°è°ƒç”¨çš„å‚æ•°ä¸ªæ•°å’Œå‚æ•°ç±»å‹éƒ½å¯ä»¥åŠ¨æ€é…ç½®
  */
 UCLASS()
-class MYWILDNODEEDITOR_API UMyWildFunctionCallNode : public UK2Node_CallFunction
+class MYWILDNODEEDITOR_API UMyWildFunctionCallNode : public UK2Node
 {
 	GENERATED_BODY()
 
@@ -24,9 +24,12 @@ public:
 	//~ Begin UK2Node Interface.
 	virtual FText GetMenuCategory() const override { return FText::FromString("MyWildDemo"); }
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
+	virtual void ExpandNode(class FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph) override;
 	//~ End UK2Node Interface.
 
 protected:
-	UEdGraphPin* CachedFuncNamePin;
+	UEdGraphPin* GetThenPin() const;
 
+protected:
+	UEdGraphPin* CachedFuncNamePin;
 };
