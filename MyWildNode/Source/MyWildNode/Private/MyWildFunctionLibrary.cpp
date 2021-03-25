@@ -4,15 +4,18 @@
 #include "MyWildFunctionLibrary.h"
 
 
-void UMyWildFunctionLibrary::MyGenericInvoke(const FString& FuncName, const FMyVarParam& InArgs)
+void UMyWildFunctionLibrary::MyGenericInvoke(const FString& FuncName, const TArray<FMyVarParam>& InArgs)
 {
 	FString Param;
-	if (InArgs.TypeName == FName("float"))
-		Param = FString::Printf(TEXT("float:%f"), InArgs.fValue);
-	else if (InArgs.TypeName == FName("string"))
-		Param = FString::Printf(TEXT("string:%s"), *(InArgs.szValue));
-	else
-		Param = TEXT("unknown");
+	for (const auto& Arg : InArgs)
+	{
+		if (Arg.TypeName == FName("float"))
+			Param += FString::Printf(TEXT("float:%f,"), Arg.fValue);
+		else if (Arg.TypeName == FName("string"))
+			Param += FString::Printf(TEXT("string:%s,"), *(Arg.szValue));
+		else
+			Param += TEXT("unknown,");
+	}
 
 	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke: %s(%s)"), *FuncName, *Param);
 }

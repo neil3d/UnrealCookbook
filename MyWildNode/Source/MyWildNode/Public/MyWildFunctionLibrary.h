@@ -31,10 +31,15 @@ class MYWILDNODE_API UMyWildFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	//BlueprintInternalUseOnly = "true",
-	UFUNCTION(BlueprintCallable, Category = MyWildDemo)
-		static void MyGenericInvoke(const FString& FuncName, const FMyVarParam& InArgs);
-
-	//static void MyGenericInvoke(const TArray<FMyVarParam>& InArgs);
+	/*
+	* 
+	* ²Î¿¼: class ENGINE_API UKismetTextLibrary : public UBlueprintFunctionLibrary
+	* 
+		//Used for formatting text using the FText::Format function and utilized by the UK2Node_FormatText 
+		UFUNCTION(BlueprintPure, meta = (BlueprintInternalUseOnly = "true"))
+		static FText Format(FText InPattern, TArray<FFormatArgumentData> InArgs);
+	*/
+	UFUNCTION(BlueprintCallable, Category = MyWildDemo, meta = (BlueprintInternalUseOnly = "true"))
+		static void MyGenericInvoke(const FString& FuncName, const TArray<FMyVarParam>& InArgs);
 
 };

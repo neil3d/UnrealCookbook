@@ -43,6 +43,7 @@ void UMyWildFunctionCallNode::AllocateDefaultPins()
 
 	// TODO: 这里就临时创建一个“输入参数”Pin，后续可以添加UI，动态增加
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param1");
+	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param2");
 }
 
 UEdGraphPin* FindOutputStructPinChecked(UEdGraphNode* Node)
@@ -69,7 +70,6 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 	UEdGraphPin* ExecPin = GetExecPin();
 	UEdGraphPin* ThenPin = GetThenPin();
 	UEdGraphPin* FuncNamePin = FindPinChecked(TEXT("FuncName"), EGPD_Input);
-	UEdGraphPin* ParamPin = FindPinChecked(TEXT("Param1"), EGPD_Input);
 
 	if (ExecPin && ThenPin) {
 		// create a CallFunction node
@@ -83,43 +83,72 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		CompilerContext.MovePinLinksToIntermediate(*ExecPin, *(CallFuncNode->GetExecPin()));
 		CompilerContext.MovePinLinksToIntermediate(*ThenPin, *(CallFuncNode->GetThenPin()));
 		CompilerContext.MovePinLinksToIntermediate(*FuncNamePin, *(CallFuncNode->FindPinChecked(TEXT("FuncName"), EGPD_Input)));
+
+		// Create a "Make Array" node to compile the list of arguments into an array for the Format function being called
+		UK2Node_MakeArray* MakeArrayNode = CompilerContext.SpawnIntermediateNode<UK2Node_MakeArray>(this, SourceGraph);
+		MakeArrayNode->AllocateDefaultPins();
+		CompilerContext.MessageLog.NotifyIntermediateObjectCreation(MakeArrayNode, this);
+
+		UEdGraphPin* ArrayOut = MakeArrayNode->GetOutputPin();
+
+		// Connect the output of the "Make Array" pin to the function's "InArgs" pin
+		ArrayOut->MakeLinkTo(CallFuncNode->FindPinChecked(TEXT("InArgs")));
+
+		// This will set the "Make Array" node's type, only works if one pin is connected.
+		MakeArrayNode->PinConnectionListChanged(ArrayOut);
 		
 		// params pin
-		
-		
-		// Spawn a "Make Struct" node to create the struct needed for formatting the text.
-		UK2Node_MakeStruct* MakeMyVarStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
-		MakeMyVarStruct->StructType = FMyVarParam::StaticStruct();
-		MakeMyVarStruct->AllocateDefaultPins();
-		MakeMyVarStruct->bMadeAfterOverridePinRemoval = true;
-		CompilerContext.MessageLog.NotifyIntermediateObjectCreation(MakeMyVarStruct, this);
-
-		// FMyVarParam 中的 UProperty 会产生 Pin，自动把输入参数连过来
-		if (ParamPin->LinkedTo.Num() > 0)
+		for (int32 ArgIdx = 0; ArgIdx < 2; ++ArgIdx)
 		{
-			// 获得当前 Param 连接进来的 Pin
-			UEdGraphPin* LinkedParamPin = ParamPin->LinkedTo[0];
-			const FName& ParamType = LinkedParamPin->PinType.PinCategory;
+			const FString ParamName = FString::Printf(TEXT("Param%d"), ArgIdx+1);
+			UEdGraphPin* ParamPin = FindPinChecked(ParamName, EGPD_Input);
 
-			// 设置 FMyVarParam.TypeName
-			UEdGraphPin* VarTypePin = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, TypeName));
-			MakeMyVarStruct->GetSchema()->TrySetDefaultValue(*VarTypePin, ParamType.ToString());
+			// Spawn a "Make Struct" node to create the struct needed for formatting the text.
+			UK2Node_MakeStruct* MakeMyVarStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
+			MakeMyVarStruct->StructType = FMyVarParam::StaticStruct();
+			MakeMyVarStruct->AllocateDefaultPins();
+			MakeMyVarStruct->bMadeAfterOverridePinRemoval = true;
+			CompilerContext.MessageLog.NotifyIntermediateObjectCreation(MakeMyVarStruct, this);
 
-			// 根据输入 Pin 的类型，来写入 FMyVarParam 的不同成员变量
-			if (ParamType == UEdGraphSchema_K2::PC_Float) {
-				UEdGraphPin* fValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue));
-				CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue)));
-			}
-			else if (ParamType == UEdGraphSchema_K2::PC_String)
+			// FMyVarParam 中的 UProperty 会产生 Pin，自动把输入参数连过来
+			if (ParamPin->LinkedTo.Num() > 0)
 			{
-				UEdGraphPin* szValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue));
-				CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue)));
-			}
-			// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换 。。。。
-		}
+				// 获得当前 Param 连接进来的 Pin
+				UEdGraphPin* LinkedParamPin = ParamPin->LinkedTo[0];
+				const FName& ParamType = LinkedParamPin->PinType.PinCategory;
 
-		// Find the output for the pin's "Make Struct" node and link it to the corresponding pin on the "Make Array" node.
-		FindOutputStructPinChecked(MakeMyVarStruct)->MakeLinkTo(CallFuncNode->FindPinChecked(TEXT("InArgs"), EGPD_Input));
+				// 设置 FMyVarParam.TypeName
+				UEdGraphPin* VarTypePin = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, TypeName));
+				MakeMyVarStruct->GetSchema()->TrySetDefaultValue(*VarTypePin, ParamType.ToString());
+
+				// 根据输入 Pin 的类型，来写入 FMyVarParam 的不同成员变量
+				if (ParamType == UEdGraphSchema_K2::PC_Float) {
+					UEdGraphPin* fValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue));
+					CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue)));
+				}
+				else if (ParamType == UEdGraphSchema_K2::PC_String)
+				{
+					UEdGraphPin* szValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue));
+					CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue)));
+				}
+				// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换 。。。。
+			}
+			
+			// 把每一个 Param 的 Struct 包装，连接到 Make Array Node
+			// The "Make Array" node already has one pin available, so don't create one for ArgIdx == 0
+			if (ArgIdx > 0)
+			{
+				MakeArrayNode->AddInputPin();
+			}
+
+			// Find the input pin on the "Make Array" node by index.
+			const FString PinName = FString::Printf(TEXT("[%d]"), ArgIdx);
+			UEdGraphPin* InputPin = MakeArrayNode->FindPinChecked(PinName);
+
+			// Find the output for the pin's "Make Struct" node and link it to the corresponding pin on the "Make Array" node.
+			FindOutputStructPinChecked(MakeMyVarStruct)->MakeLinkTo(InputPin);
+		}// end of for_each(InputParamPin)
+		
 	}
 
 	// break any links to the expanded node
