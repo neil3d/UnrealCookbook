@@ -13,9 +13,14 @@ struct FMyVarParam {
 
 public:
 	//TODO: ≥¢ ‘ π”√ FVariant var;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName TypeName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float fValue;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString szValue;
 };
 
 /**

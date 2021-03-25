@@ -6,5 +6,13 @@
 
 void UMyWildFunctionLibrary::MyGenericInvoke(const FString& FuncName, const FMyVarParam& InArgs)
 {
-	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke: %s(%f)"), *FuncName, InArgs.fValue);
+	FString Param;
+	if (InArgs.TypeName == FName("float"))
+		Param = FString::Printf(TEXT("float:%f"), InArgs.fValue);
+	else if (InArgs.TypeName == FName("string"))
+		Param = FString::Printf(TEXT("string:%s"), *(InArgs.szValue));
+	else
+		Param = TEXT("unknown");
+
+	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke: %s(%s)"), *FuncName, *Param);
 }

@@ -94,16 +94,28 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		MakeMyVarStruct->bMadeAfterOverridePinRemoval = true;
 		CompilerContext.MessageLog.NotifyIntermediateObjectCreation(MakeMyVarStruct, this);
 
-		// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换和包装。。。。
 		// FMyVarParam 中的 UProperty 会产生 Pin，自动把输入参数连过来
 		if (ParamPin->LinkedTo.Num() > 0)
 		{
+			// 获得当前 Param 连接进来的 Pin
 			UEdGraphPin* LinkedParamPin = ParamPin->LinkedTo[0];
 			const FName& ParamType = LinkedParamPin->PinType.PinCategory;
+
+			// 设置 FMyVarParam.TypeName
+			UEdGraphPin* VarTypePin = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, TypeName));
+			MakeMyVarStruct->GetSchema()->TrySetDefaultValue(*VarTypePin, ParamType.ToString());
+
+			// 根据输入 Pin 的类型，来写入 FMyVarParam 的不同成员变量
 			if (ParamType == UEdGraphSchema_K2::PC_Float) {
 				UEdGraphPin* fValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue));
 				CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, fValue)));
 			}
+			else if (ParamType == UEdGraphSchema_K2::PC_String)
+			{
+				UEdGraphPin* szValue = MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue));
+				CompilerContext.MovePinLinksToIntermediate(*ParamPin, *MakeMyVarStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FMyVarParam, szValue)));
+			}
+			// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换 。。。。
 		}
 
 		// Find the output for the pin's "Make Struct" node and link it to the corresponding pin on the "Make Array" node.

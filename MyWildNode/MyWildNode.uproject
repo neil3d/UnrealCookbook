@@ -14,7 +14,7 @@
 		},
 		{
 			"Name": "MyWildNodeEditor",
-			"Type": "Developer",
+			"Type": "UncookedOnly",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"BlueprintGraph"
