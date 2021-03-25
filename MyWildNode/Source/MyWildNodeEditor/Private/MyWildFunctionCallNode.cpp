@@ -17,3 +17,8 @@ void UMyWildFunctionCallNode::GetMenuActions(FBlueprintActionDatabaseRegistrar& 
 		ActionRegistrar.AddBlueprintAction(ActionKey, NodeSpawner);
 	}
 }
+
+FText UMyWildFunctionCallNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+	return FText::FromString("MyWildFunctionCall");;
+}

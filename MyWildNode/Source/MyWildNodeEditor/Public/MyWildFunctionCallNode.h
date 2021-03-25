@@ -17,4 +17,5 @@ class MYWILDNODEEDITOR_API UMyWildFunctionCallNode : public UK2Node_CallFunction
 public:
 	virtual FText GetMenuCategory() const override { return FText::FromString("MyWildDemo"); }
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 };
