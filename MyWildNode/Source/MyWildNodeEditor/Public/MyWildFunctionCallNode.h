@@ -15,7 +15,18 @@ class MYWILDNODEEDITOR_API UMyWildFunctionCallNode : public UK2Node_CallFunction
 	GENERATED_BODY()
 
 public:
+	//~ Begin UEdGraphNode Interface.
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	virtual void AllocateDefaultPins() override;
+	//~ End UEdGraphNode Interface.
+
+
+	//~ Begin UK2Node Interface.
 	virtual FText GetMenuCategory() const override { return FText::FromString("MyWildDemo"); }
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
-	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	//~ End UK2Node Interface.
+
+protected:
+	UEdGraphPin* CachedFuncNamePin;
+
 };
