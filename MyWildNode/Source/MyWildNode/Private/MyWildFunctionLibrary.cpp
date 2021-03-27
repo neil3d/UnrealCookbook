@@ -4,7 +4,7 @@
 #include "MyWildFunctionLibrary.h"
 
 
-void UMyWildFunctionLibrary::MyGenericInvoke(const FString& FuncName, const TArray<FMyVarParam>& InArgs)
+void UMyWildFunctionLibrary::MyGenericInvoke(UObject* InSelf, const FString& InFuncName, const TArray<FMyVarParam>& InArgs)
 {
 	FString Param;
 	for (const auto& Arg : InArgs)
@@ -17,5 +17,7 @@ void UMyWildFunctionLibrary::MyGenericInvoke(const FString& FuncName, const TArr
 			Param += TEXT("unknown,");
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke: %s(%s)"), *FuncName, *Param);
+	FString SelfName;
+	InSelf->GetName(SelfName);
+	UE_LOG(LogTemp, Error, TEXT("MyGenericInvoke: %s.%s(%s)"), *SelfName, *InFuncName, *Param);
 }

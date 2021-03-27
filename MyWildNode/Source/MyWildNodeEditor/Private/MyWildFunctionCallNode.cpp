@@ -39,7 +39,9 @@ void UMyWildFunctionCallNode::AllocateDefaultPins()
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);
 
-	CachedFuncNamePin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, TEXT("FuncName"));
+	// 两个固定参数的 Pin
+	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UEdGraphSchema_K2::PSC_Self, UEdGraphSchema_K2::PN_Self);
+	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, TEXT("FuncName"));
 
 	// TODO: 这里就临时创建一个“输入参数”Pin，后续可以添加UI，动态增加
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param1");
@@ -70,6 +72,7 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 	UEdGraphPin* ExecPin = GetExecPin();
 	UEdGraphPin* ThenPin = GetThenPin();
 	UEdGraphPin* FuncNamePin = FindPinChecked(TEXT("FuncName"), EGPD_Input);
+	UEdGraphPin* SelfPin = FindPinChecked(UEdGraphSchema_K2::PN_Self, EGPD_Input);
 
 	if (ExecPin && ThenPin) {
 		// create a CallFunction node
@@ -82,7 +85,8 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		// move pins
 		CompilerContext.MovePinLinksToIntermediate(*ExecPin, *(CallFuncNode->GetExecPin()));
 		CompilerContext.MovePinLinksToIntermediate(*ThenPin, *(CallFuncNode->GetThenPin()));
-		CompilerContext.MovePinLinksToIntermediate(*FuncNamePin, *(CallFuncNode->FindPinChecked(TEXT("FuncName"), EGPD_Input)));
+		CompilerContext.MovePinLinksToIntermediate(*FuncNamePin, *(CallFuncNode->FindPinChecked(TEXT("InFuncName"), EGPD_Input)));
+		CompilerContext.MovePinLinksToIntermediate(*SelfPin, *(CallFuncNode->FindPinChecked(TEXT("InSelf"), EGPD_Input)));
 
 		// Create a "Make Array" node to compile the list of arguments into an array for the Format function being called
 		UK2Node_MakeArray* MakeArrayNode = CompilerContext.SpawnIntermediateNode<UK2Node_MakeArray>(this, SourceGraph);

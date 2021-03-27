@@ -30,6 +30,4 @@ public:
 protected:
 	UEdGraphPin* GetThenPin() const;
 
-protected:
-	UEdGraphPin* CachedFuncNamePin;
 };

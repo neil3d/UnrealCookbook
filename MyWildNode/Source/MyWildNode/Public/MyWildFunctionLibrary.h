@@ -40,6 +40,6 @@ public:
 		static FText Format(FText InPattern, TArray<FFormatArgumentData> InArgs);
 	*/
 	UFUNCTION(BlueprintCallable, Category = MyWildDemo, meta = (BlueprintInternalUseOnly = "true"))
-		static void MyGenericInvoke(const FString& FuncName, const TArray<FMyVarParam>& InArgs);
+		static void MyGenericInvoke(UObject* InSelf, const FString& InFuncName, const TArray<FMyVarParam>& InArgs);
 
 };
