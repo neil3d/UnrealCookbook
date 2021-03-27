@@ -6,6 +6,8 @@
 #include "K2Node.h"
 #include "MyWildFunctionCallNode.generated.h"
 
+class SMyWildNodeWidget;
+
 /**
  * 蓝图动态节点：函数调用的参数个数和参数类型都可以动态配置
  */
@@ -35,9 +37,13 @@ public:
 protected:
 	UEdGraphPin* GetThenPin() const;
 
-	void OnSelfObjectChanged(UObject* NewSelf);
-	void OnClassChanged(UClass* NewClass);
+	void OnSelfObjectChanged(UClass* NewSelfClass);
 
 private:
+	TSharedPtr<SMyWildNodeWidget> NodeWidget;
+
 	UEdGraphPin* CachedSelfPin = nullptr;
+
+	UPROPERTY()
+	UClass* SelfClass;
 };

@@ -101,11 +101,11 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 
 		// This will set the "Make Array" node's type, only works if one pin is connected.
 		MakeArrayNode->PinConnectionListChanged(ArrayOut);
-		
+
 		// params pin
 		for (int32 ArgIdx = 0; ArgIdx < 2; ++ArgIdx)
 		{
-			const FString ParamName = FString::Printf(TEXT("Param%d"), ArgIdx+1);
+			const FString ParamName = FString::Printf(TEXT("Param%d"), ArgIdx + 1);
 			UEdGraphPin* ParamPin = FindPinChecked(ParamName, EGPD_Input);
 
 			// Spawn a "Make Struct" node to create the struct needed for formatting the text.
@@ -138,7 +138,7 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 				}
 				// TODO： 参考 UK2Node_FormatText::ExpandNode() 写各种类型的转换 。。。。
 			}
-			
+
 			// 把每一个 Param 的 Struct 包装，连接到 Make Array Node
 			// The "Make Array" node already has one pin available, so don't create one for ArgIdx == 0
 			if (ArgIdx > 0)
@@ -153,7 +153,7 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 			// Find the output for the pin's "Make Struct" node and link it to the corresponding pin on the "Make Array" node.
 			FindOutputStructPinChecked(MakeMyVarStruct)->MakeLinkTo(InputPin);
 		}// end of for_each(InputParamPin)
-		
+
 	}
 
 	// break any links to the expanded node
@@ -169,27 +169,33 @@ UEdGraphPin* UMyWildFunctionCallNode::GetThenPin() const
 
 TSharedPtr<SGraphNode> UMyWildFunctionCallNode::CreateVisualWidget()
 {
-	auto WidgetPtr = SNew(SMyWildNodeWidget, this);
-	return WidgetPtr;
+	SAssignNew(NodeWidget, SMyWildNodeWidget, this);
+	return NodeWidget;
 }
 
-void UMyWildFunctionCallNode::OnSelfObjectChanged(UObject* NewSelf)
-{}
-
-void UMyWildFunctionCallNode::OnClassChanged(UClass* NewClass)
-{}
+void UMyWildFunctionCallNode::OnSelfObjectChanged(UClass* NewSelfClass)
+{
+	SelfClass = NewSelfClass;
+	NodeWidget->UpdateGraphNode();
+}
 
 void UMyWildFunctionCallNode::PinConnectionListChanged(UEdGraphPin* Pin)
 {
 	if (Pin == CachedSelfPin)
 	{
 		auto LinkedPin = Pin->LinkedTo.Num() > 0 ? Pin->LinkedTo[0] : nullptr;
-		UObject* NewSelf = nullptr;
+		const FName& LinkedType = LinkedPin->PinType.PinCategory;
+
+		if (LinkedType == UEdGraphSchema_K2::PC_Object)
+		{
+			auto LinkedClass = LinkedPin->PinType.PinSubCategoryObject;
+			if (LinkedClass.IsValid())
+				OnSelfObjectChanged(Cast<UClass>(LinkedClass.Get()));
+		}
 	}
 }
 
 UClass* UMyWildFunctionCallNode::GetSelectedClass() const
 {
-	// TODO: get self pin class
-	return AActor::StaticClass();
+	return SelfClass;
 }

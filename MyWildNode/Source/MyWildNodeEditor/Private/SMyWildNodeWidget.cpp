@@ -62,10 +62,13 @@ END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SMyWildNodeWidget::OnClassComboList_Update()
 {
+	SubClassList.Empty();
+
 	UMyWildFunctionCallNode* Node = Cast<UMyWildFunctionCallNode>(this->GraphNode);
 	UClass* ParentClass = Node->GetSelectedClass();
+	if (!ParentClass)
+		return;
 
-	SubClassList.Empty();
 	for (TObjectIterator<UClass> Iter; Iter; ++Iter)
 	{
 		UClass* Class = *Iter;
@@ -102,10 +105,13 @@ FText SMyWildNodeWidget::OnClassComboList_GetFilterText() const
 
 void SMyWildNodeWidget::OnFuncComboList_Update()
 {
+	MemberFuncList.Empty();
+
 	UMyWildFunctionCallNode* Node = Cast<UMyWildFunctionCallNode>(this->GraphNode);
 	UClass* ParentClass = Node->GetSelectedClass();
+	if (!ParentClass)
+		return;
 
-	MemberFuncList.Empty();
 	for (TFieldIterator<UFunction> Iter(ParentClass, EFieldIteratorFlags::ExcludeSuper); Iter; ++Iter)
 	{
 		MemberFuncList.Add(*Iter);
