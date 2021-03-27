@@ -39,6 +39,7 @@ public class MyWildNodeEditor : ModuleRules
                 "Slate",
                 "SlateCore",
 				// ... add private dependencies that you statically link with here ...	
+                "InputCore",
                 "UnrealEd",
                 "GraphEditor",
                 "EditorStyle",

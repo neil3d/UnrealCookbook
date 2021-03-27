@@ -19,6 +19,7 @@ public:
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual void AllocateDefaultPins() override;
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
+	virtual void PinConnectionListChanged(UEdGraphPin* Pin) override;
 	//~ End UEdGraphNode Interface.
 
 
@@ -28,7 +29,15 @@ public:
 	virtual void ExpandNode(class FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph) override;
 	//~ End UK2Node Interface.
 
+public:
+	UClass* GetSelectedClass() const;
+
 protected:
 	UEdGraphPin* GetThenPin() const;
 
+	void OnSelfObjectChanged(UObject* NewSelf);
+	void OnClassChanged(UClass* NewClass);
+
+private:
+	UEdGraphPin* CachedSelfPin = nullptr;
 };

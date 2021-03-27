@@ -16,6 +16,7 @@
 #include "K2Node_MakeArray.h"
 #include "MyWildFunctionLibrary.h"
 #include "SMyWildNodeWidget.h"
+#include "Actor.h"
 
 void UMyWildFunctionCallNode::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
 {
@@ -40,7 +41,7 @@ void UMyWildFunctionCallNode::AllocateDefaultPins()
 	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);
 
 	// 两个固定参数的 Pin
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UEdGraphSchema_K2::PSC_Self, UEdGraphSchema_K2::PN_Self);
+	CachedSelfPin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self);
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, TEXT("FuncName"));
 
 	// TODO: 这里就临时创建一个“输入参数”Pin，后续可以添加UI，动态增加
@@ -170,4 +171,25 @@ TSharedPtr<SGraphNode> UMyWildFunctionCallNode::CreateVisualWidget()
 {
 	auto WidgetPtr = SNew(SMyWildNodeWidget, this);
 	return WidgetPtr;
+}
+
+void UMyWildFunctionCallNode::OnSelfObjectChanged(UObject* NewSelf)
+{}
+
+void UMyWildFunctionCallNode::OnClassChanged(UClass* NewClass)
+{}
+
+void UMyWildFunctionCallNode::PinConnectionListChanged(UEdGraphPin* Pin)
+{
+	if (Pin == CachedSelfPin)
+	{
+		auto LinkedPin = Pin->LinkedTo.Num() > 0 ? Pin->LinkedTo[0] : nullptr;
+		UObject* NewSelf = nullptr;
+	}
+}
+
+UClass* UMyWildFunctionCallNode::GetSelectedClass() const
+{
+	// TODO: get self pin class
+	return AActor::StaticClass();
 }
