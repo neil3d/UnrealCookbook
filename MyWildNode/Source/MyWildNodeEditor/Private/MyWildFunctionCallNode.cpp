@@ -15,7 +15,7 @@
 #include "K2Node_MakeStruct.h"
 #include "K2Node_MakeArray.h"
 #include "MyWildFunctionLibrary.h"
-
+#include "SMyWildNodeWidget.h"
 
 void UMyWildFunctionCallNode::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
 {
@@ -164,4 +164,10 @@ UEdGraphPin* UMyWildFunctionCallNode::GetThenPin() const
 	UEdGraphPin* Pin = FindPin(UEdGraphSchema_K2::PN_Then);
 	check(Pin == nullptr || Pin->Direction == EGPD_Output); // If pin exists, it must be output
 	return Pin;
+}
+
+TSharedPtr<SGraphNode> UMyWildFunctionCallNode::CreateVisualWidget()
+{
+	auto WidgetPtr = SNew(SMyWildNodeWidget, this);
+	return WidgetPtr;
 }

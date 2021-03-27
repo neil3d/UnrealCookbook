@@ -41,6 +41,7 @@ public class MyWildNodeEditor : ModuleRules
 				// ... add private dependencies that you statically link with here ...	
                 "UnrealEd",
                 "GraphEditor",
+                "EditorStyle",
                 "BlueprintGraph",
                 "KismetCompiler",
                 "MyWildNode"

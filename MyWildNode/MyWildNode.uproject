@@ -17,7 +17,9 @@
 			"Type": "UncookedOnly",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"BlueprintGraph"
+				"BlueprintGraph",
+				"Slate",
+				"SlateCore"
 			]
 		}
 	]
