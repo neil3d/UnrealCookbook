@@ -14,8 +14,46 @@ void SMyWildNodeWidget::Construct(const FArguments& InArgs, UMyWildFunctionCallN
 	this->UpdateGraphNode();
 }
 
-void SMyWildNodeWidget::CreateBelowPinControls(TSharedPtr<SVerticalBox> MainBox)
+void SMyWildNodeWidget::CreatePinWidgets()
 {
+	// 1. 先创建 Exec-Then Pin & Self Pin
+	auto ExecPin = GraphNode->FindPinChecked(UEdGraphSchema_K2::PN_Execute);
+	auto ThenPin = GraphNode->FindPinChecked(UEdGraphSchema_K2::PN_Then);
+	auto SelfPin = GraphNode->FindPinChecked(UEdGraphSchema_K2::PN_Self, EGPD_Input);
+	CreateStandardPinWidget(ExecPin);
+	CreateStandardPinWidget(ThenPin);
+	CreateStandardPinWidget(SelfPin);
+
+	// 2. 两个 Combo box 放中间
+	CreateComboLists();
+
+	// 3. 下面是自动生成的 Param Pins
+	for (int32 PinIndex = 0; PinIndex < GraphNode->Pins.Num(); ++PinIndex)
+	{
+		UEdGraphPin* CurPin = GraphNode->Pins[PinIndex];
+		if (CurPin == SelfPin || CurPin==ExecPin || CurPin==ThenPin)
+			continue;
+
+		if (!ensureMsgf(CurPin->GetOuter() == GraphNode
+			, TEXT("Graph node ('%s' - %s) has an invalid %s pin: '%s'; (with a bad %s outer: '%s'); skiping creation of a widget for this pin.")
+			, *GraphNode->GetNodeTitle(ENodeTitleType::ListView).ToString()
+			, *GraphNode->GetPathName()
+			, (CurPin->Direction == EEdGraphPinDirection::EGPD_Input) ? TEXT("input") : TEXT("output")
+			, CurPin->PinFriendlyName.IsEmpty() ? *CurPin->PinName.ToString() : *CurPin->PinFriendlyName.ToString()
+			, CurPin->GetOuter() ? *CurPin->GetOuter()->GetClass()->GetName() : TEXT("UNKNOWN")
+			, CurPin->GetOuter() ? *CurPin->GetOuter()->GetPathName() : TEXT("NULL")))
+		{
+			continue;
+		}
+
+		CreateStandardPinWidget(CurPin);
+	}
+
+}
+
+void SMyWildNodeWidget::CreateComboLists()
+{
+	TSharedPtr<SVerticalBox> MainBox = this->LeftNodeBox;
 	MainBox->AddSlot()
 		.AutoHeight()
 		.Padding(5.0f)
@@ -57,6 +95,7 @@ void SMyWildNodeWidget::CreateBelowPinControls(TSharedPtr<SVerticalBox> MainBox)
 				]
 			]
 		];
+
 }
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -92,6 +131,7 @@ TSharedRef<SWidget> SMyWildNodeWidget::OnClassComboList_GenerateWidget(UClass* I
 }
 void SMyWildNodeWidget::OnClassComboList_SelectionChanged(UClass* Item, ESelectInfo::Type SelectInfo)
 {
+	SelectedClass = Item;
 }
 
 FText SMyWildNodeWidget::OnClassComboList_GetFilterText() const
@@ -130,6 +170,9 @@ TSharedRef<SWidget> SMyWildNodeWidget::OnFuncComboList_GenerateWidget(UFunction*
 
 void SMyWildNodeWidget::OnFuncComboList_SelectionChanged(UFunction* Item, ESelectInfo::Type SelectInfo)
 {
+	SelectedFunc = Item;
+	UMyWildFunctionCallNode* Node = Cast<UMyWildFunctionCallNode>(this->GraphNode);
+	Node->OnFunctionSelected(Item);
 }
 
 FText SMyWildNodeWidget::OnFuncComboList_GetFilterText() const

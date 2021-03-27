@@ -19,9 +19,12 @@ public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs, UMyWildFunctionCallNode* InNode);
 
-	virtual void CreateBelowPinControls(TSharedPtr<SVerticalBox> MainBox) override;
+	virtual void CreatePinWidgets() override;
 
 private:
+
+	void CreateComboLists();
+
 	void OnClassComboList_Update();
 	TSharedRef<SWidget> OnClassComboList_GenerateWidget(UClass* InItem);
 	void OnClassComboList_SelectionChanged(UClass* Item, ESelectInfo::Type SelectInfo);
@@ -35,7 +38,9 @@ private:
 private:
 	TSharedPtr<SComboBox<UClass*>> SubClassCombo;
 	TArray<UClass*> SubClassList;
+	UClass* SelectedClass = nullptr;
 
 	TSharedPtr<SComboBox<UFunction*>> MemberFuncCombo;
 	TArray<UFunction*> MemberFuncList;
+	UFunction* SelectedFunc = nullptr;
 };

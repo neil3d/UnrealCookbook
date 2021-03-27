@@ -40,13 +40,8 @@ void UMyWildFunctionCallNode::AllocateDefaultPins()
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);
 
-	// 两个固定参数的 Pin
+	// Self Pin
 	CachedSelfPin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self);
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_String, TEXT("FuncName"));
-
-	// TODO: 这里就临时创建一个“输入参数”Pin，后续可以添加UI，动态增加
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param1");
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, "Param2");
 }
 
 UEdGraphPin* FindOutputStructPinChecked(UEdGraphNode* Node)
@@ -70,23 +65,27 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 {
 	Super::ExpandNode(CompilerContext, SourceGraph);
 
+	if (!MemberFunc)
+	{
+		CompilerContext.MessageLog.Error(TEXT("Please select a function."));
+		return;
+	}
+
 	UEdGraphPin* ExecPin = GetExecPin();
 	UEdGraphPin* ThenPin = GetThenPin();
-	UEdGraphPin* FuncNamePin = FindPinChecked(TEXT("FuncName"), EGPD_Input);
 	UEdGraphPin* SelfPin = FindPinChecked(UEdGraphSchema_K2::PN_Self, EGPD_Input);
 
 	if (ExecPin && ThenPin) {
-		// create a CallFunction node
+		// 创建一个中间节点来调用 UMyWildFunctionLibrary::MyGenericInvoke()
 		FName MyFunctionName = GET_FUNCTION_NAME_CHECKED(UMyWildFunctionLibrary, MyGenericInvoke);
-
 		UK2Node_CallFunction* CallFuncNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
 		CallFuncNode->FunctionReference.SetExternalMember(MyFunctionName, UMyWildFunctionLibrary::StaticClass());
 		CallFuncNode->AllocateDefaultPins();
 
 		// move pins
+
 		CompilerContext.MovePinLinksToIntermediate(*ExecPin, *(CallFuncNode->GetExecPin()));
 		CompilerContext.MovePinLinksToIntermediate(*ThenPin, *(CallFuncNode->GetThenPin()));
-		CompilerContext.MovePinLinksToIntermediate(*FuncNamePin, *(CallFuncNode->FindPinChecked(TEXT("InFuncName"), EGPD_Input)));
 		CompilerContext.MovePinLinksToIntermediate(*SelfPin, *(CallFuncNode->FindPinChecked(TEXT("InSelf"), EGPD_Input)));
 
 		// Create a "Make Array" node to compile the list of arguments into an array for the Format function being called
@@ -103,9 +102,11 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 		MakeArrayNode->PinConnectionListChanged(ArrayOut);
 
 		// params pin
-		for (int32 ArgIdx = 0; ArgIdx < 2; ++ArgIdx)
+		int32 ArgIdx = 0;
+		for (TFieldIterator<FProperty> Iter(MemberFunc); Iter; ++Iter)
 		{
-			const FString ParamName = FString::Printf(TEXT("Param%d"), ArgIdx + 1);
+			FProperty* ParamProp = *Iter;
+			const FString ParamName = ParamProp->GetFName().ToString();
 			UEdGraphPin* ParamPin = FindPinChecked(ParamName, EGPD_Input);
 
 			// Spawn a "Make Struct" node to create the struct needed for formatting the text.
@@ -160,6 +161,46 @@ void UMyWildFunctionCallNode::ExpandNode(class FKismetCompilerContext& CompilerC
 	BreakAllNodeLinks();
 }
 
+FName _GetParamPinCategory(FProperty* Property)
+{
+	FName Ret = UEdGraphSchema_K2::PC_Wildcard;
+	if (Property->IsA(FFloatProperty::StaticClass()))
+		Ret = UEdGraphSchema_K2::PC_Float;
+	else if (Property->IsA(FBoolProperty::StaticClass()))
+		Ret = UEdGraphSchema_K2::PC_Boolean;
+	else if (Property->IsA(FIntProperty::StaticClass()))
+		Ret = UEdGraphSchema_K2::PC_Int;
+	else if (Property->IsA(FStrProperty::StaticClass()))
+		Ret = UEdGraphSchema_K2::PC_String;
+	else
+	{
+		// TODO: 补全类型
+	}
+	return Ret;
+}
+
+void UMyWildFunctionCallNode::OnFunctionSelected(UFunction* InFunc)
+{
+	MemberFunc = InFunc;
+
+	// 先粗放的删除所有的 Param Pin，TODO：优化，如果类相同，可以保持现有Pin和连接
+	for (auto Pin : CachedParamPins)
+		this->RemovePin(Pin);
+	CachedParamPins.Empty();
+
+	// 根据函数的参数，创建对应的Pin
+	for (TFieldIterator<FProperty> Iter(MemberFunc); Iter; ++Iter)
+	{
+		// TODO: 对函数的返回值产生 Output Pin
+
+		FProperty* ParamProp = *Iter;
+		auto Pin = CreatePin(EGPD_Input, _GetParamPinCategory(ParamProp), ParamProp->GetFName());
+		CachedParamPins.Add(Pin);
+	}// end of for
+
+	NodeWidget->UpdateGraphNode();
+}
+
 UEdGraphPin* UMyWildFunctionCallNode::GetThenPin() const
 {
 	UEdGraphPin* Pin = FindPin(UEdGraphSchema_K2::PN_Then);
@@ -181,16 +222,19 @@ void UMyWildFunctionCallNode::OnSelfObjectChanged(UClass* NewSelfClass)
 
 void UMyWildFunctionCallNode::PinConnectionListChanged(UEdGraphPin* Pin)
 {
-	if (Pin == CachedSelfPin)
+	if (Pin == CachedSelfPin && Pin != nullptr)
 	{
 		auto LinkedPin = Pin->LinkedTo.Num() > 0 ? Pin->LinkedTo[0] : nullptr;
-		const FName& LinkedType = LinkedPin->PinType.PinCategory;
-
-		if (LinkedType == UEdGraphSchema_K2::PC_Object)
+		if (LinkedPin)
 		{
-			auto LinkedClass = LinkedPin->PinType.PinSubCategoryObject;
-			if (LinkedClass.IsValid())
-				OnSelfObjectChanged(Cast<UClass>(LinkedClass.Get()));
+			const FName& LinkedType = LinkedPin->PinType.PinCategory;
+
+			if (LinkedType == UEdGraphSchema_K2::PC_Object)
+			{
+				auto LinkedClass = LinkedPin->PinType.PinSubCategoryObject;
+				if (LinkedClass.IsValid())
+					OnSelfObjectChanged(Cast<UClass>(LinkedClass.Get()));
+			}
 		}
 	}
 }

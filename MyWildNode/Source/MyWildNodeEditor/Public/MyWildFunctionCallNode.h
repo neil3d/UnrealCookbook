@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "K2Node.h"
+#include "SGraphNode.h"
 #include "MyWildFunctionCallNode.generated.h"
 
 class SMyWildNodeWidget;
@@ -31,6 +32,8 @@ public:
 	virtual void ExpandNode(class FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph) override;
 	//~ End UK2Node Interface.
 
+	void OnFunctionSelected(UFunction* InFunc);
+
 public:
 	UClass* GetSelectedClass() const;
 
@@ -40,10 +43,14 @@ protected:
 	void OnSelfObjectChanged(UClass* NewSelfClass);
 
 private:
-	TSharedPtr<SMyWildNodeWidget> NodeWidget;
+	TSharedPtr<SGraphNode> NodeWidget;
 
 	UEdGraphPin* CachedSelfPin = nullptr;
+	TArray<UEdGraphPin*> CachedParamPins;
 
 	UPROPERTY()
-	UClass* SelfClass;
+		UClass* SelfClass;
+
+	UPROPERTY()
+		UFunction* MemberFunc;
 };
