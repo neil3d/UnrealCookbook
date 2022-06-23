@@ -21,7 +21,8 @@
 
 ## 【实验3】数据类型变量同步|Variable Replication
 
-- RepNotify
+- 使用 Rep Notify 和在属性同步完之后得到进行回调
+- 使用 Conditional Property Replication 可以优化带宽
 
 ## 【实验4】Object 引用同步
 
@@ -32,3 +33,4 @@
 - [官方文档：RPCs](https://docs.unrealengine.com/5.0/en-US/rpcs-in-unreal-engine/)
 
 ## 【实验6】移动同步|Movement Replication
+

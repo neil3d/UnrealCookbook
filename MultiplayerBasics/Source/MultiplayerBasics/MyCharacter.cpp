@@ -18,7 +18,13 @@ void AMyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AMyCharacter, CurrentHP);
+	/*
+	* 参考 ACharacter：CurrentHP 这个属性只同步给自己的 Simulated Actor
+	* see: https://www.unrealengine.com/en-US/blog/network-tips-and-tricks
+	* only replicate to clients that have a simulating copy of this actor.
+	*/
+	//DOREPLIFETIME(AMyCharacter, CurrentHP);
+	DOREPLIFETIME_CONDITION(AMyCharacter, CurrentHP, COND_SimulatedOnly);
 }
 
 // Called when the game starts or when spawned

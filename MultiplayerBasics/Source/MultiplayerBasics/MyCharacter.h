@@ -28,7 +28,7 @@ public:
 
 protected:
 	// 定义一个具备 Rep Notify 的同步属性变量
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing=OnRep_CurrentHP)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_CurrentHP)
 	float CurrentHP;
 
 	// 用来接收 Rep Notify 的回调函数
